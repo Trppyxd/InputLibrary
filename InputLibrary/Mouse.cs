@@ -19,9 +19,9 @@ namespace InputLibrary
         /// <seealso cref="LeftDown"/>
         /// <seealso cref="LeftUp"/>
         [DllImport("user32.dll")]
-        static extern void mouse_event(int dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
+        static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, uint dwExtraInfo);
 
-        #region Cursor
+        #region DLL Cursor
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -87,14 +87,30 @@ namespace InputLibrary
             mouse_event((int)flag, pos.X, pos.Y, 0, 0);
         }
 
+        private static void DoMouseAction(MouseEventFlags flag, int data)
+        {
+            if (!GetCursorPos(out POINT pos))
+                throw new InvalidOperationException("Could not retrieve mouse position.");
+
+            mouse_event((int)flag, pos.X, pos.Y, 0, 0);
+        }
+
+        private static void DoMouseAction(MouseEventFlags flag, MouseEventDataXButtons XButton)
+        {
+            if (!GetCursorPos(out POINT pos))
+                throw new InvalidOperationException("Could not retrieve mouse position.");
+
+            mouse_event((int)flag, pos.X, pos.Y, (int)XButton, 0);
+        }
+
         #endregion
 
         #region LeftMouse
 
         public static void LeftClick()
         {
-            DoMouseAction(MouseEventFlags.LEFTDOWN);
-            DoMouseAction(MouseEventFlags.LEFTUP);
+            LeftDown();
+            LeftUp();
         }
 
         public static void LeftDown()
@@ -113,8 +129,8 @@ namespace InputLibrary
 
         public static void RightClick()
         {
-            DoMouseAction(MouseEventFlags.RIGHTDOWN);
-            DoMouseAction(MouseEventFlags.RIGHTUP);
+            RightDown();
+            RightUp();
         }
 
         public static void RightDown()
@@ -133,8 +149,8 @@ namespace InputLibrary
 
         public static void MiddleClick()
         {
-            DoMouseAction(MouseEventFlags.MIDDLEDOWN);
-            DoMouseAction(MouseEventFlags.MIDDLEUP);
+            MiddleDown();
+            MiddleUp();
         }
 
         public static void MiddleDown()
@@ -145,6 +161,46 @@ namespace InputLibrary
         public static void MiddleUp()
         {
             DoMouseAction(MouseEventFlags.MIDDLEUP);
+        }
+
+        public static void Scroll(int increment)
+        {
+            if (increment > 100 || increment < -100)
+                throw new ArgumentOutOfRangeException(nameof(increment),"Scroll increment out of range (100 to -100)");
+
+            DoMouseAction(MouseEventFlags.WHEEL, increment);
+        }
+
+        #endregion
+
+        #region SideMouse
+
+        public static void SideFrontClick()
+        {
+            DoMouseAction(MouseEventFlags.XDOWN, MouseEventDataXButtons.XBUTTON1);
+            DoMouseAction(MouseEventFlags.XUP, MouseEventDataXButtons.XBUTTON1);
+        }
+        public static void SideFrontDown()
+        {
+            DoMouseAction(MouseEventFlags.XDOWN, MouseEventDataXButtons.XBUTTON1);
+        }
+        public static void SideFrontUp()
+        {
+            DoMouseAction(MouseEventFlags.XUP, MouseEventDataXButtons.XBUTTON1);
+        }
+
+        public static void SideBackClick()
+        {
+            DoMouseAction(MouseEventFlags.XDOWN, MouseEventDataXButtons.XBUTTON2);
+            DoMouseAction(MouseEventFlags.XUP, MouseEventDataXButtons.XBUTTON2);
+        }
+        public static void SideBackDown()
+        {
+            DoMouseAction(MouseEventFlags.XDOWN, MouseEventDataXButtons.XBUTTON2);
+        }
+        public static void SideBackUp()
+        {
+            DoMouseAction(MouseEventFlags.XUP, MouseEventDataXButtons.XBUTTON2);
         }
 
         #endregion
