@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using InputLibrary;
 
@@ -12,9 +13,19 @@ namespace TestProject
         static void Main(string[] args)
         {
             Console.WriteLine("Test application started!");
+            //while (true)
+            //{
+            //    Mouse.Move(10, 10);
+            //    Thread.Sleep(10);
+            //    Mouse.Move(-10, -10);
+            //    Thread.Sleep(10);
+            //}
+            Thread asd = new Thread(() =>
+            {
+                Mouse.MoveSmooth(200, 150);
+            });
 
-            Mouse.SetCursorPos(100, 100);
-            Mouse.LeftClick();
+            asd.Start();
 
             Console.ReadKey();
         }

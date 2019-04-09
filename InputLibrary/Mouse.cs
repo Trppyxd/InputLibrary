@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace InputLibrary
 {
@@ -15,9 +16,6 @@ namespace InputLibrary
         /// <param name="dy"></param>
         /// <param name="dwData"></param>
         /// <param name="dwExtraInfo"></param>
-        /// <seealso cref="LeftClick"/>
-        /// <seealso cref="LeftDown"/>
-        /// <seealso cref="LeftUp"/>
         [DllImport("user32.dll")]
         static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, uint dwExtraInfo);
 
@@ -40,6 +38,14 @@ namespace InputLibrary
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="Y"></param>
+        /// <returns></returns>
+        /// <see cref="Move"/>
+        /// <seealso cref="MoveSmooth"/>
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCursorPos(int X, int Y);
@@ -87,6 +93,11 @@ namespace InputLibrary
             mouse_event((int)flag, pos.X, pos.Y, 0, 0);
         }
 
+        private static void DoMouseAction(MouseEventFlags flag, int x, int y)
+        {
+            mouse_event((int)flag, x, y, 0, 0);
+        }
+
         private static void DoMouseAction(MouseEventFlags flag, int data)
         {
             if (!GetCursorPos(out POINT pos))
@@ -101,6 +112,50 @@ namespace InputLibrary
                 throw new InvalidOperationException("Could not retrieve mouse position.");
 
             mouse_event((int)flag, pos.X, pos.Y, (int)XButton, 0);
+        }
+
+        #endregion
+
+        #region Cursor
+
+        /// <summary>
+        /// Sets the cursor to the provided <paramref name="x"/> and <paramref name="y"/>.
+        /// The x:0, y:0 point is the current Cursor location.
+        /// </summary>
+        /// <param name="x">X coordinate relative to current pos.</param>
+        /// <param name="y">Y coordinate relative to current pos.</param>
+        /// <see cref="SetCursorPos"/>
+        /// <seealso cref="MoveSmooth"/>
+        public static void Move(int x, int y)
+        {
+            DoMouseAction(MouseEventFlags.MOVE, x, y);
+        }
+
+        public static void MoveSmooth(int x, int y)
+        {
+            if (!GetCursorPos(out POINT pos))
+                throw new InvalidOperationException("Could not retrieve mouse position.");
+
+            var posX = pos.X;
+            var posY = pos.Y;
+            var destPosX = pos.X + x;
+            var destPosY = pos.Y + y;
+
+            while (posX != destPosX && posY != destPosY)
+            {
+                if (posX < destPosX)
+                {
+                    posX++;
+                }
+                if (posY < destPosY)
+                {
+                    posY++;
+                }
+
+                Console.WriteLine($"x:{posX} - y:{posY}");
+                Thread.Sleep(5);
+                SetCursorPos(posX, posY);
+            }
         }
 
         #endregion
@@ -166,7 +221,7 @@ namespace InputLibrary
         public static void Scroll(int increment)
         {
             if (increment > 100 || increment < -100)
-                throw new ArgumentOutOfRangeException(nameof(increment),"Scroll increment out of range (100 to -100)");
+                throw new ArgumentOutOfRangeException(nameof(increment), "Scroll increment out of range (100 to -100)");
 
             DoMouseAction(MouseEventFlags.WHEEL, increment);
         }
