@@ -22,7 +22,7 @@ namespace TestProject
             //}
             Thread asd = new Thread(() =>
             {
-                Mouse.MoveSmooth(200, 150);
+                Mouse.MoveSmooth(680, 634);
             });
 
             asd.Start();
