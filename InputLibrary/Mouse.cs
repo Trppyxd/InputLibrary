@@ -141,22 +141,84 @@ namespace InputLibrary
             var destPosX = pos.X + x;
             var destPosY = pos.Y + y;
 
+            // Only positive values for "now"
+            if (destPosX < 0)
+                throw new ArgumentOutOfRangeException(nameof(destPosX), "Argument can't be less than 0.");
+            if (destPosY < 0)
+                throw new ArgumentOutOfRangeException(nameof(destPosY), "Argument can't be less than 0.");
+
+            int rndPointAmountX = (destPosX - posX) / 30;
+            int rndPointAmountY = (destPosY - posY) / 30;
+            int rndPointAmount = (rndPointAmountX + rndPointAmountY) / 2;
+
+            Random rndX = new Random();
+            Random rndY = new Random();
+
+            var randomPoint = new POINT(
+                rndX.Next(posX, posX + (destPosX - posX) / 2),
+                rndY.Next(posY, posY + (destPosY - posY) / 2));
+
+            int currentPoint = 1;
+            bool foundPoint = false;
             while (posX != destPosX && posY != destPosY)
             {
+                while (!foundPoint)
+                {
+                    if (posX < randomPoint.X)
+                    {
+                        posX++;
+                        Move(1, 0);
+                    }
+
+                    if (posY < randomPoint.Y)
+                    {
+                        posY++;
+                        Move(0, 1);
+                    }
+                        
+                    Console.WriteLine($"x:{posX} - y:{posY}");
+                    Thread.Sleep(4);
+
+                    if (posX == randomPoint.X && posY == randomPoint.Y)
+                    {
+                        Console.WriteLine("\nFound random Point({0}, {1})\n", randomPoint.X, randomPoint.Y);
+
+                        randomPoint.X = rndX.Next(posX, posX + (destPosX - posX) / 3);
+                        randomPoint.Y = rndY.Next(posY, posY + (destPosY - posY) / 3);
+
+                        if (currentPoint >= rndPointAmount)
+                        {
+                            foundPoint = true;
+                            Console.WriteLine("\tFound all Points!");
+                        }
+                        currentPoint++;
+                    }
+
+                }
+
                 if (posX < destPosX)
                 {
                     posX++;
+                    Move(1, 0);
                 }
+
+
                 if (posY < destPosY)
                 {
                     posY++;
+                    Move(0, 1);
                 }
 
                 Console.WriteLine($"x:{posX} - y:{posY}");
                 SetCursorPos(posX, posY);
                 Thread.Sleep(5); // Time between each pixel movement in ms.
             }
+
+            Console.WriteLine("\n\tReached the destination Point ({0}, {1})\n", posX, posY);
         }
+
+
+
 
         #endregion
 
