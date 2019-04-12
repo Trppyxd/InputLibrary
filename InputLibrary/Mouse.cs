@@ -153,8 +153,8 @@ namespace InputLibrary
                 }
 
                 Console.WriteLine($"x:{posX} - y:{posY}");
-                Thread.Sleep(5);
                 SetCursorPos(posX, posY);
+                Thread.Sleep(5); // Time between each pixel movement in ms.
             }
         }
 
@@ -218,6 +218,10 @@ namespace InputLibrary
             DoMouseAction(MouseEventFlags.MIDDLEUP);
         }
 
+        /// <summary>
+        /// Simulates scrolling from -100 to 100 ticks.
+        /// </summary>
+        /// <param name="increment">From -100 to 100 ticks.</param>
         public static void Scroll(int increment)
         {
             if (increment > 100 || increment < -100)
@@ -232,8 +236,8 @@ namespace InputLibrary
 
         public static void SideFrontClick()
         {
-            DoMouseAction(MouseEventFlags.XDOWN, MouseEventDataXButtons.XBUTTON1);
-            DoMouseAction(MouseEventFlags.XUP, MouseEventDataXButtons.XBUTTON1);
+            SideFrontDown();
+            SideFrontUp();
         }
         public static void SideFrontDown()
         {
@@ -246,8 +250,8 @@ namespace InputLibrary
 
         public static void SideBackClick()
         {
-            DoMouseAction(MouseEventFlags.XDOWN, MouseEventDataXButtons.XBUTTON2);
-            DoMouseAction(MouseEventFlags.XUP, MouseEventDataXButtons.XBUTTON2);
+            SideBackDown();
+            SideBackUp();
         }
         public static void SideBackDown()
         {
